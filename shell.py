@@ -1,27 +1,17 @@
 import sys, os, platform, importlib
 
-HELP_MESSAGE = """Commands:
-HELP      - Prints this display.
-EXIT      - Exits this shell environment.
-CLEAR     - Clears the current text buffer.
-MOUNT     - Will present a list of all mountable modules.
-LS        - Presents information about the current module.
-LSMOD     - Will list all available modules.
-DISMOUNT  - Dismount the currently loaded module."""
-
-DEFAULT_TITLE     = "ata"
-
-MODULE_MOUNT_ERROR     = "There was an error whilst attempting to mount a module."
-MODULE_DIRECTORY_EMPTY = "There was an error whilst scanning the module directory."
-MODULE_PRESENT         = "There is already a module mounted."
-NO_MODULE_ERROR        = "There are no modules currently mounted."
-
-DISMOUNT_ERROR         = "There was an error whilst trying to dismount the current module."
-INVALID_COMMAND_ERROR  = "Invalid command."
-COMMAND_LIST_ERROR     = "Command list is empty or invalid."
+ERRORS = {
+	'MODULE_MOUNT_ERROR':     "There was an error whilst attempting to mount a module.",
+	'MODULE_DIRECTORY_EMPTY': "There was an error whilst scanning the module directory.",
+	'MODULE_PRESENT':         "There is already a module mounted.",
+	'NO_MODULE_ERROR':        "There are no modules currently mounted.",
+	'DISMOUNT_ERROR':         "There was an error whilst trying to dismount the current module.",
+	'INVALID_COMMAND_ERROR':  "Invalid command.",
+	'COMMAND_LIST_ERROR':     "Command list is empty or invalid."	
+}
 
 class Shell:
-	def __init__(self, directory, commands, active=False, title=DEFAULT_TITLE):
+	def __init__(self, directory, commands, title, active=False):
 		self.active   = active
 		self.title    = title
 
@@ -35,10 +25,10 @@ class Shell:
 
 	def Spawn(self):
 		if not self.CheckCommands():
-			print(COMMAND_LIST_ERROR)
+			print(ERRORS['COMMAND_LIST_ERROR'])
 			return
 		if not self.GatherModules():
-			print(MODULE_DIRECTORY_EMPTY)
+			print(ERRORS['MODULE_DIRECTORY_EMPTY'])
 			return
 
 		sys.path.append(self.directory)
@@ -52,14 +42,14 @@ class Shell:
 		read = input(f"{self.title}> ").lower()
 
 		if not self.EvaluateCommand(read):
-			print(INVALID_COMMAND_ERROR)
+			print(ERRORS['INVALID_COMMAND_ERROR'])
 			return
 		self.command = read
 
 	def SelectModule(self):
 		if not self.CheckModules(): return
 		if self.module:
-			print(MODULE_PRESENT)
+			print(ERRORS['MODULE_PRESENT'])
 			return
 
 		self.DisplayModules()
@@ -68,18 +58,18 @@ class Shell:
 			selection = int(input("select> "))
 			
 			if not self.CheckModule(self.modules[selection]):
-				print(MODULE_MOUNT_ERROR)
+				print(ERRORS['MODULE_MOUNT_ERROR'])
 				return
 			if not self.Mount(self.modules[selection]):
-				print(MODULE_MOUNT_ERROR)
+				print(ERRORS['MODULE_MOUNT_ERROR'])
 				return
 		except:
-			print(MODULE_MOUNT_ERROR)
+			print(ERRORS['MODULE_MOUNT_ERROR'])
 			return
 
 	def DisplayModules(self):
 		if not self.CheckModules():
-			print(MODULE_DIRECTORY_EMPTY)
+			print(ERRORS['MODULE_DIRECTORY_EMPTY'])
 			return
 
 		for module in range(0, len(self.modules)):
@@ -95,19 +85,19 @@ class Shell:
 			return False
 		return True
 
-	def Dismount(self):
+	def Dismount(self, title):
 		if not self.module:
-			print(NO_MODULE_ERROR)
+			print(ERRORS['NO_MODULE_ERROR'])
 			return False
 
 		try:
 			del sys.modules[self.module]
 			print(f"Dismounted {self.module}.")
 		except:
-			print(DISMOUNT_ERROR)
+			print(ERRORS['DISMOUNT_ERROR'])
 			return False
 
-		self.title = DEFAULT_TITLE
+		self.title = title
 		self.module = None
 
 		return True
@@ -146,7 +136,7 @@ class Shell:
 			imported = importlib.import_module(module)
 			print("Mounted module.")
 		except:
-			print(MODULE_MOUNT_ERROR)
+			print(ERRORS['MODULE_MOUNT_ERROR'])
 			return False
 
 		self.title = module
@@ -155,7 +145,7 @@ class Shell:
 
 	def ModuleInformation(self):
 		if not self.module:
-			print(NO_MODULE_ERROR)
+			print(ERRORS['NO_MODULE_ERROR'])
 			return
 		print(f"The {self.module} module is currently loaded.")
 
@@ -166,5 +156,5 @@ class Shell:
 			case "Linux":
 				os.system("clear")
 
-	def Help(self):
-		print(HELP_MESSAGE)
+	def Help(self, message):
+		print(message)
