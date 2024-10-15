@@ -20,4 +20,4 @@ python -m pip install platform
 
 ## Summary
 
-If you enjoy the use of this tool, please leave your feedback. I welcome all criticism as I am looking to learn and improve my skills. I **do not** condone the malicious use of any software I public. All responsibility is assumed by the user and not the developer.
+If you enjoy the use of this tool, please leave your feedback. I welcome all criticism as I am looking to learn and improve my skills. I **do not** condone the malicious use of any software I make public. All responsibility is assumed by the user and not the developer.
