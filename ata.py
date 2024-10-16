@@ -1,37 +1,27 @@
 from shell import *
 
-HELP_MESSAGE = """Commands:
-HELP      - Prints this display.
-EXIT      - Exits this shell environment.
-CLEAR     - Clears the current text buffer.
-MOUNT     - Will present a list of all mountable modules.
-LS        - Presents information about the current module.
-LSMOD     - Will list all available modules.
-DISMOUNT  - Dismount the currently loaded module."""
-
-MODULES_DIRECTORY = "C:/Users/Tomas/Documents/Scripts/AIO/Modules"
-COMMANDS = [ 'help', 'exit', 'dismount', 'mount', 'lsmod', 'ls', 'clear' ]
+MODULES_DIRECTORY = "C:/Users/Tomas/Documents/Scripts/ATA/Modules"
+COMMANDS = [ 'help', 'exit', 'dismount', 'mount', 'lsmod', 'clear' ]
 TITLE = "ata"
 
 def HandleCommand(command, shell):
 	match command:
 		case 'help':
-			shell.Help(HELP_MESSAGE)
+			shell.Help()
 		case 'exit':
 			shell.Kill()
 		case 'dismount':
-			shell.Dismount(TITLE)
+			shell.Dismount()
 		case 'mount':
 			shell.SelectModule()
 		case 'lsmod':
 			shell.DisplayModules()
-		case 'ls':
-			shell.ModuleInformation()
 		case 'clear':
 			shell.Clear()
+	shell.command = False
 
 try:
-	shell = Shell(MODULES_DIRECTORY, COMMANDS, TITLE)
+	shell = Shell(COMMANDS, TITLE, directory=MODULES_DIRECTORY, standalone=True)
 	shell.Spawn()
 
 	while shell.active:
