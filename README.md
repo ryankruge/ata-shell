@@ -6,7 +6,6 @@ ATA (All Things ARP) is a modular application that can execute multiple networki
 - EXIT : Exits the shell environment.
 - CLEAR : Clears the current command-line text buffer.
 - MOUNT : Presents the module select menu based on the default module directory path.
-- LS : Display the currently mounted module.
 - LSMOD : Display the currently available modules.
 - DISMOUNT : Dismount the currently mounted module.
 ## Requirements
