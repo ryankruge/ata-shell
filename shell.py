@@ -12,24 +12,32 @@ ERRORS = {
 	'STANDALONE_SHELL_ERROR':  "This is a standalone shell."
 }
 
-DIALOGUE = """Commands:
-HELP      - Prints this display.
-EXIT      - Exits this shell environment.
-CLEAR     - Clears the current text buffer.
-MOUNT     - Will present a list of all mountable modules.
-LSMOD     - Will list all available modules.
-DISMOUNT  - Dismount the currently loaded module."""
+DIALOGUE = """HELP     - Prints this display.
+EXIT     - Exits this shell environment.
+CLEAR    - Clears the current text buffer.
+MOUNT    - Will present a list of all mountable modules.
+LSMOD    - Will list all available modules.
+DISMOUNT - Dismount the currently loaded module."""
 
 DEFAULT_DIRECTORY = "C:/Users"
 DEFAULT_TITLE = 'ata'
+DEFAULT_COMMANDS = [ 'help', 'exit', 'dismount', 'mount', 'lsmod', 'clear' ]
 
 class Shell:
-	def __init__(self, commands, title, dialogue=DIALOGUE, directory=DEFAULT_DIRECTORY, standalone=False):
+	def __init__(self, title, dialogue=DIALOGUE, directory=DEFAULT_DIRECTORY, standalone=False):
 		self.title      = title
 		self.directory  = directory
-		self.commands   = commands
 		self.standalone = standalone
 		self.dialogue = dialogue
+
+		self.commands = {
+			'help': self.Help,
+			'exit': self.Kill,
+			'dismount': self.Dismount,
+			'mount': self.SelectModule,
+			'lsmod': self.DisplayModules,
+			'clear': self.Clear
+		}
 
 		self.active   = False
 		self.command  = ""
@@ -47,13 +55,12 @@ class Shell:
 		sys.exit()
 
 	def Help(self):
-		print(self.dialogue)
+		print(f"Commands:\n{self.dialogue}")
 
 	def UpdateShell(self):
 		read = input(f"{self.title}> ").lower()
 
-		if not self.EvaluateCommand(read):
-			print(ERRORS['INVALID_COMMAND_ERROR'])
+		if self.EvaluateCommand(read):
 			return
 		self.command = read
 
@@ -146,11 +153,7 @@ class Shell:
 		return True
 
 	def EvaluateCommand(self, command):
-		if command not in self.commands:
-			return False
-		return True
+		if not command in self.commands: return False
 
-	def CheckCommands(self):
-		if not self.commands:
-			return False
+		self.commands[command]()
 		return True
