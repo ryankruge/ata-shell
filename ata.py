@@ -1,6 +1,7 @@
+#!/usr/bin/python3
 from shell import *
 
-MODULES_DIRECTORY = "C:/"
+MODULES_DIRECTORY = "/home/ryan/Documents/Packages/ata-shell/Modules"
 TITLE = "ata"
 
 try:

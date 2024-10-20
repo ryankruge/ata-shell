@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import sys, os, platform, importlib
 
 ERRORS = {

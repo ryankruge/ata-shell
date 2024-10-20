@@ -1,10 +1,11 @@
+#!/usr/bin/python3
 from scapy.all import ARP, srp, Ether
-import sys, socket, importlib
+import sys, socket, importlib, re
 
 class Discovery:
 	def __init__(self, target, interface):
 		self.target = target
-		self.interface = target
+		self.interface = interface
 
 	def GetHosts(self):
 		packet = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
@@ -14,7 +15,8 @@ class Discovery:
 
 		addresses = []
 		for reply in range(0, len(replies)):
-			addresses.append(replies[reply][1].psrc)[0]
+			current = replies[reply][1].psrc
+			addresses.append(current)
 		return addresses
 
 	def ReverseDNS(self, host):
@@ -33,25 +35,32 @@ class Discovery:
 			message
 		)
 
+HELP = "SCAN - When provided with a subnet and network interface will trigger a host scan."
+
+SHELL_DIRECTORY = "C:/Users/Tomas/Documents/Scripts/ATA"
+TITLE = 'discovery'
+
+TARGET_FLAG = "-t"
+INTERFACE_FLAG = "-i"
+
+REQUIRED = [ TARGET_FLAG, INTERFACE_FLAG ]
+CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
+
+def FormatArguments(string):
+	pattern = r'\"(.*?)\"|(\S+)'
+	matches = re.findall(pattern, string)
+
+	words = [quoted if quoted else non_quoted for quoted, non_quoted in matches]
+	return words
+
 def VerifyRequired(arguments, required):
 	for flag in required:
 		if flag not in arguments:
 			return False
 	return True
 
-HELP = "SCAN - When provided with a subnet and network interface will trigger a host scan."
-
-SHELL_DIRECTORY = "C:/Users/Tomas/Documents/Scripts/ATA"
-TITLE = 'discovery'
-
-TARGET_FLAG = "target"
-INTERFACE_FLAG = "interface"
-
-REQUIRED = [ TARGET_FLAG, INTERFACE_FLAG ]
-CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
-
 def HandleCommand(command, shell):
-	arguments = GetArguments(command) # FINAL ISSUE, PARSE ARGUMENTS THAT SUPPORT QUOTATIONS: "Wi-Fi 2" AS ONE PARAMETER.
+	arguments = FormatArguments(command)
 	match arguments[0]:
 		case 'scan':
 			Main(arguments, shell)
