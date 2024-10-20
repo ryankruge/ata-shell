@@ -1,5 +1,5 @@
-# ATA Shell (All Things ARP)
-ATA (All Things ARP) is a modular application that can execute multiple networking tools from within a CLI (command-line interface) in a custom shell built for this program. The default syntax is very basic and provides all the help that is needed via the **help** command.
+# ATA Shell (All-Things-ARP) Suite
+ATA (All-Things-ARP) is a modular application that can execute multiple networking tools from within a CLI (command-line interface) in a custom shell environment thas was built for this suite of programs. The default syntax is very basic and provides all the help that is needed via the **help** command.
 # Application Usage
 ## Arguments
 - HELP : Displays the help menu.
