@@ -1,6 +1,6 @@
 from shell import *
 
-MODULES_DIRECTORY = "C:/Users/Tomas/Documents/Scripts/ATA/Modules"
+MODULES_DIRECTORY = "C:/"
 TITLE = "ata"
 
 try:
