@@ -20,14 +20,12 @@ MOUNT    - Will present a list of all mountable modules.
 LSMOD    - Will list all available modules.
 DISMOUNT - Dismount the currently loaded module."""
 
-DEFAULT_DIRECTORY = "C:/Users"
 DEFAULT_TITLE = 'ata'
 DEFAULT_COMMANDS = [ 'help', 'exit', 'dismount', 'mount', 'lsmod', 'clear' ]
 
 class Shell:
-	def __init__(self, title, dialogue=DIALOGUE, directory=DEFAULT_DIRECTORY, standalone=False):
+	def __init__(self, title, dialogue=DIALOGUE, standalone=False):
 		self.title      = title
-		self.directory  = directory
 		self.standalone = standalone
 		self.dialogue = dialogue
 
@@ -40,6 +38,7 @@ class Shell:
 			'clear': self.Clear
 		}
 
+		self.directory = self.ResolvePath()
 		self.active   = False
 		self.command  = ""
 		self.platform = platform.system()
@@ -49,7 +48,9 @@ class Shell:
 
 	def Spawn(self):
 		self.active = True
-		if not self.standalone: sys.path.append(self.directory)
+		if self.standalone:
+			return
+		sys.path.append(self.directory)
 
 	def Kill(self):
 		self.active = False
@@ -59,11 +60,15 @@ class Shell:
 		print(f"Commands:\n{self.dialogue}")
 
 	def UpdateShell(self):
-		read = input(f"{self.title}> ").lower()
+		read = input(f"{self.title}> ")
 
 		if self.EvaluateCommand(read):
 			return
 		self.command = read
+
+	def ResolvePath(self):
+		path = os.path.dirname(os.path.abspath(__file__))
+		return f"{path}/Modules"
 
 	def SelectModule(self):
 		if self.standalone:

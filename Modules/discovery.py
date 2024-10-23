@@ -2,6 +2,16 @@
 from scapy.all import ARP, srp, Ether
 import sys, socket, importlib, re
 
+HELP = "SCAN - When provided with a subnet and network interface will trigger a host scan."
+
+TITLE = 'discovery'
+
+TARGET_FLAG = "-t"
+INTERFACE_FLAG = "-i"
+
+REQUIRED = [ TARGET_FLAG, INTERFACE_FLAG ]
+CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
+
 class Discovery:
 	def __init__(self, target, interface):
 		self.target = target
@@ -34,17 +44,6 @@ class Discovery:
 			colorama.Style.RESET_ALL,
 			message
 		)
-
-HELP = "SCAN - When provided with a subnet and network interface will trigger a host scan."
-
-SHELL_DIRECTORY = "C:/Users/Tomas/Documents/Scripts/ATA"
-TITLE = 'discovery'
-
-TARGET_FLAG = "-t"
-INTERFACE_FLAG = "-i"
-
-REQUIRED = [ TARGET_FLAG, INTERFACE_FLAG ]
-CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
 
 def FormatArguments(string):
 	pattern = r'\"(.*?)\"|(\S+)'
