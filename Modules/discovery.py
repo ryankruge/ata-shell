@@ -1,8 +1,14 @@
 #!/usr/bin/python3
 from scapy.all import ARP, srp, Ether
-import sys, socket, importlib, re, os
+import sys, importlib, re, os, requests
 
-HELP = "SCAN - When provided with a subnet and network interface will trigger a host scan."
+HELP = """SCAN - Requires `-t` and `-i` flags to function.
+-T - Specify the target, single address or subnet in 0.0.0.0/24 format.
+-I - Specify the desired network interface to use for the scan.
+"""
+
+
+BANNER = "Software written by Ryan Kruge. Available on GitHub (https://github.com/ryankruge/ata-shell.git)."
 
 TITLE = 'discovery'
 
@@ -29,12 +35,14 @@ class Discovery:
 			hosts.append(information)
 		return hosts
 
-	def ReverseDNS(self, host):
-		try:
-			hostname = socket.gethostbyaddr(host)[0]
-			return hostname
-		except:
-			return "N/A"
+	def GetVendor(self, address):
+		formatted = address[:8].upper().replace(":", "-")
+		url = f"https://api.macvendors.com/{formatted}"
+		
+		response = requests.get(url)
+		if not response.status_code == 200:
+			return "Unknown Vendor"
+		return response.text
 
 def FormatArguments(string):
 	pattern = r'\"(.*?)\"|(\S+)'
@@ -70,13 +78,14 @@ def Main(arguments, shell):
 			parameters[INTERFACE_FLAG]
 		)
 
+		print(BANNER)
 		hosts = discovery.GetHosts()
 		if not hosts:
 			print("There was an error whilst attempting to scan the network.")
 			return
 
 		for host in hosts:
-			print(f"{host[0]}   {host[1]}   {discovery.ReverseDNS(host)}")
+			print(f"{host[0]:<18} {host[1]:<20} {discovery.GetVendor(host[1]):<20}")
 	except Exception as error:
 		print(error)
 		return
