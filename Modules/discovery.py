@@ -23,11 +23,11 @@ class Discovery:
 
 		if not replies: return []
 
-		addresses = []
+		hosts = []
 		for reply in range(0, len(replies)):
-			current = replies[reply][1].psrc
-			addresses.append(current)
-		return addresses
+			information = (replies[reply][1].psrc, replies[reply][1].hwsrc)
+			hosts.append(information)
+		return hosts
 
 	def ReverseDNS(self, host):
 		try:
@@ -35,15 +35,6 @@ class Discovery:
 			return hostname
 		except:
 			return "N/A"
-
-	def PrintMessage(self, message):
-		print("{}[{}*{}]{} {}").format(
-			colorama.Style.DIM,
-			colorama.Style.RESET_ALL,
-			colorama.Style.DIM,
-			colorama.Style.RESET_ALL,
-			message
-		)
 
 def FormatArguments(string):
 	pattern = r'\"(.*?)\"|(\S+)'
@@ -84,7 +75,8 @@ def Main(arguments, shell):
 			print("There was an error whilst attempting to scan the network.")
 			return
 
-		for host in hosts: print(f"Result for [{host}]: ({discovery.ReverseDNS(host)})")
+		for host in hosts:
+			print(f"{host[0]}   {host[1]}   {discovery.ReverseDNS(host)}")
 	except Exception as error:
 		print(error)
 		return
