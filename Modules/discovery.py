@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from scapy.all import ARP, srp, Ether
-import sys, socket, importlib, re
+import sys, socket, importlib, re, os
 
 HELP = "SCAN - When provided with a subnet and network interface will trigger a host scan."
 
@@ -102,7 +102,8 @@ def PopulateParameters(arguments, flags, dictionary):
 
 def Initialise():
 	try:
-		sys.path.append(SHELL_DIRECTORY)
+		main_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		sys.path.append(main_path)
 		library = importlib.import_module('shell')
 
 		shell = library.Shell(TITLE, dialogue=HELP, standalone=True)
