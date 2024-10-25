@@ -1,5 +1,5 @@
 # ATA Shell (All-Things-ARP) Networking Suite
-ATA (All-Things-ARP) is a modular application that can deploy multiple networking tools from within a CLI (command-line interface) in a custom shell environment thas was built for this suite of applications. The default syntax is very basic and all the help that is needed can be obtained via the **help** command.
+ATA (All-Things-ARP) is a modular application that can deploy networking tools from within a CLI (command-line interface) in a custom shell environment thas was built for this suite of applications. The default syntax is very basic and all the help that is needed can be obtained via the **help** command.
 # Application Usage
 ## Arguments
 - HELP : Displays the help dialogue.
@@ -7,7 +7,6 @@ ATA (All-Things-ARP) is a modular application that can deploy multiple networkin
 - CLEAR : Clears the current command-line text buffer.
 - MOUNT : Presents a module selection prompt to mount a desired module.
 - LSMOD : Display the currently available modules.
-- DISMOUNT : Dismount the currently mounted module. (Not currently implemented.)
 ## Requirements
 This program requires a few dependancies which can be installed with the `requirements.txt` file.
 ```
