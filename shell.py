@@ -1,5 +1,10 @@
 #!/usr/bin/python3
-import sys, os, platform, importlib
+import sys
+import os
+import platform
+import importlib
+
+# Code written by Tomas. All software available on my GitHub. https://www.github.com/shelbenheimer
 
 ERRORS = {
 	'MODULE_MOUNT_ERROR':      "There was an error whilst attempting to mount a module.",
@@ -13,38 +18,37 @@ ERRORS = {
 	'STANDALONE_SHELL_ERROR':  "This is a standalone shell."
 }
 
-DIALOGUE = """HELP     - Prints this display.
+DEFAULT_DIALOGUE = """HELP     - Prints this display.
 EXIT     - Exits this shell environment.
 CLEAR    - Clears the current text buffer.
 MOUNT    - Will present a list of all mountable modules.
-LSMOD    - Will list all available modules.
-DISMOUNT - Dismount the currently loaded module."""
+LSMOD    - Lists contents of modules directory."""
 
-DEFAULT_TITLE = 'ata'
-DEFAULT_COMMANDS = [ 'help', 'exit', 'dismount', 'mount', 'lsmod', 'clear' ]
+DEFAULT_MODULES  = "/Modules"
+DEFAULT_TITLE    = 'ata'
+DEFAULT_COMMANDS = [ 'help', 'exit', 'mount', 'lsmod', 'clear' ]
 
 class Shell:
-	def __init__(self, title, dialogue=DIALOGUE, standalone=False):
+	def __init__(self, title, dialogue=DEFAULT_DIALOGUE, standalone=False):
 		self.title      = title
 		self.standalone = standalone
-		self.dialogue = dialogue
+		self.dialogue   = dialogue
 
 		self.commands = {
-			'help': self.Help,
-			'exit': self.Kill,
-			'dismount': self.Dismount,
+			'help':  self.Help,
+			'exit':  self.Kill,
 			'mount': self.SelectModule,
 			'lsmod': self.DisplayModules,
 			'clear': self.Clear
 		}
 
-		self.directory = self.ResolvePath()
-		self.active   = False
-		self.buffer  = ""
-		self.platform = platform.system()
+		self.active    = False
+		self.buffer    = ""
+		self.directory = f"{os.path.dirname(os.path.abspath(__file__))}{DEFAULT_MODULES}"
+		self.platform  = platform.system()
 
-		self.module  = None
-		self.modules = []
+		self.module   = None
+		self.modules  = []
 		self.imported = None
 
 	def Spawn(self):
@@ -67,23 +71,21 @@ class Shell:
 			return
 		self.buffer = read
 
-	def ResolvePath(self):
-		path = os.path.dirname(os.path.abspath(__file__))
-		return f"{path}/Modules"
-
 	def SelectModule(self):
-		if self.standalone:
-			print(ERRORS['STANDALONE_SHELL_ERROR'])
-			return False
-		self.DisplayModules()
-
 		try:
+			if self.standalone:
+				print(ERRORS['STANDALONE_SHELL_ERROR'])
+				return False
+			self.DisplayModules()
+
 			selection = int(input("select> "))
 
 			module = self.modules[selection]
+			if not self.CheckModule(module):
+				return False
 
-			if not self.CheckModule(module): return False
-			if not self.Mount(module): return False
+			if not self.Mount(module):
+				return False
 		except Exception as error:
 			print(error)
 			return False
@@ -118,12 +120,6 @@ class Shell:
 		if not self.modules:
 			return False
 		return True
-
-	def Dismount(self):
-		if not self.standalone:
-			print(ERRORS['NO_MODULE_ERROR'])
-			return False
-		del sys.modules[self.imported]
 
 	def Mount(self, module):
 		try:

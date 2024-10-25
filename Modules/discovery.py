@@ -1,13 +1,17 @@
 #!/usr/bin/python3
 from scapy.all import ARP, srp, Ether
-import sys, importlib, re, os, requests
+import sys
+import importlib
+import re
+import os
+import requests
 
 HELP = """SCAN - Requires `-t` and `-i` flags to function.
 -T - Specify the target, single address or subnet in 0.0.0.0/24 format.
 -I - Specify the desired network interface to use for the scan."""
 
-BANNER = "Software written by Ryan Kruge. Available on GitHub (https://github.com/ryankruge/ata-shell)."
-VENDOR_PATH = "Resources/manuf"
+BANNER = "Software written by Ryan Kruge. Available on GitHub. (https://github.com/ryankruge/ata-shell)"
+VENDOR_PATH = "/Resources/manuf"
 
 TITLE = 'discovery'
 
@@ -19,15 +23,15 @@ CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
 
 class Discovery:
 	def __init__(self, target, interface):
-		self.target = target
+		self.target    = target
 		self.interface = interface
-		
+
+		self.path    = f"{os.path.dirname(os.path.abspath(__file__))}{VENDOR_PATH}"
 		self.vendors = {}
-		self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), VENDOR_PATH)
 
 	def GetHosts(self):
 		packet = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
-		replies = srp(packet, iface=self.interface, timeout=1, verbose=False)[0]
+		replies = srp(packet, iface=self.interface, timeout=2, verbose=False)[0]
 
 		if not replies: return []
 
@@ -84,7 +88,7 @@ def HandleCommand(command, shell):
 	match arguments[0]:
 		case 'scan':
 			Main(arguments, shell)
-	shell.command = None
+	shell.buffer = None
 
 def Main(arguments, shell):
 	try:
