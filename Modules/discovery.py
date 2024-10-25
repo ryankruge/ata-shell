@@ -7,8 +7,8 @@ HELP = """SCAN - Requires `-t` and `-i` flags to function.
 -I - Specify the desired network interface to use for the scan.
 """
 
-
 BANNER = "Software written by Ryan Kruge. Available on GitHub (https://github.com/ryankruge/ata-shell.git)."
+VENDOR_PATH = "Resources/manuf"
 
 TITLE = 'discovery'
 
@@ -22,6 +22,7 @@ class Discovery:
 	def __init__(self, target, interface):
 		self.target = target
 		self.interface = interface
+		self.vendors = {}
 
 	def GetHosts(self):
 		packet = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
@@ -35,14 +36,35 @@ class Discovery:
 			hosts.append(information)
 		return hosts
 
+	def PopulateVendors(self):
+		try:
+			if not os.path.exists(VENDOR_PATH):
+				return {}
+			vendor_list = open(VENDOR_PATH, 'r', encoding="utf8")
+
+			temporary = {}
+			for line in vendor_list:
+				split = line.split()
+				temporary[split[0]] = split[1]
+			return temporary
+		except Exception as error:
+			print(error)
+			return False
+
+	def FormatOUI(self, address):
+		formatted = address[:8].replace("-", ":")
+		return formatted
+
 	def GetVendor(self, address):
-		formatted = address[:8].upper().replace(":", "-")
-		url = f"https://api.macvendors.com/{formatted}"
-		
-		response = requests.get(url)
-		if not response.status_code == 200:
-			return "Unknown Vendor"
-		return response.text
+		if not self.vendors:
+			self.vendors = self.PopulateVendors()
+		if not self.vendors:
+			return False
+
+		formatted = self.FormatOUI(address).upper()
+		if not self.vendors[formatted]:
+			return "Unkown Vendor"
+		return self.vendors[formatted]
 
 def FormatArguments(string):
 	pattern = r'\"(.*?)\"|(\S+)'
@@ -85,7 +107,8 @@ def Main(arguments, shell):
 			return
 
 		for host in hosts:
-			print(f"{host[0]:<18} {host[1]:<20} {discovery.GetVendor(host[1]):<20}")
+			vendor = discovery.GetVendor(host[1])
+			print(f"{host[0]:<18} {host[1]:<20} {vendor:<20}")
 	except Exception as error:
 		print(error)
 		return

@@ -2,4 +2,4 @@ scapy
 importlib
 platform
 re
-socket
+requests
