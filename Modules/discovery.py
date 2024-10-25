@@ -4,10 +4,9 @@ import sys, importlib, re, os, requests
 
 HELP = """SCAN - Requires `-t` and `-i` flags to function.
 -T - Specify the target, single address or subnet in 0.0.0.0/24 format.
--I - Specify the desired network interface to use for the scan.
-"""
+-I - Specify the desired network interface to use for the scan."""
 
-BANNER = "Software written by Ryan Kruge. Available on GitHub (https://github.com/ryankruge/ata-shell.git)."
+BANNER = "Software written by Ryan Kruge. Available on GitHub (https://github.com/ryankruge/ata-shell)."
 VENDOR_PATH = "Resources/manuf"
 
 TITLE = 'discovery'
@@ -22,7 +21,9 @@ class Discovery:
 	def __init__(self, target, interface):
 		self.target = target
 		self.interface = interface
+		
 		self.vendors = {}
+		self.path = os.path.join(os.path.dirname(os.path.abspath(__file__)), VENDOR_PATH)
 
 	def GetHosts(self):
 		packet = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
@@ -38,18 +39,16 @@ class Discovery:
 
 	def PopulateVendors(self):
 		try:
-			if not os.path.exists(VENDOR_PATH):
-				return {}
-			vendor_list = open(VENDOR_PATH, 'r', encoding="utf8")
-
-			temporary = {}
-			for line in vendor_list:
-				split = line.split()
-				temporary[split[0]] = split[1]
-			return temporary
+			with open(self.path, encoding="utf8") as file:
+				temporary = {}
+				for line in file:
+					split = line.split()
+					temporary[split[0]] = split[1]
+				return temporary
+			return
 		except Exception as error:
 			print(error)
-			return False
+			sys.exit()
 
 	def FormatOUI(self, address):
 		formatted = address[:8].replace("-", ":")
@@ -59,12 +58,13 @@ class Discovery:
 		if not self.vendors:
 			self.vendors = self.PopulateVendors()
 		if not self.vendors:
-			return False
+			return "Unobtainable"
 
 		formatted = self.FormatOUI(address).upper()
-		if not self.vendors[formatted]:
-			return "Unkown Vendor"
-		return self.vendors[formatted]
+		try:
+			return self.vendors[formatted]
+		except:
+			return "Unknown Vendor"
 
 def FormatArguments(string):
 	pattern = r'\"(.*?)\"|(\S+)'
@@ -101,6 +101,10 @@ def Main(arguments, shell):
 		)
 
 		print(BANNER)
+
+		if not discovery.PopulateVendors():
+			print("Failed to populate manufacturer database.")
+
 		hosts = discovery.GetHosts()
 		if not hosts:
 			print("There was an error whilst attempting to scan the network.")
@@ -126,8 +130,8 @@ def PopulateParameters(arguments, flags, dictionary):
 
 def Initialise():
 	try:
-		main_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-		sys.path.append(main_path)
+		shell_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		sys.path.append(shell_path)
 		library = importlib.import_module('shell')
 
 		shell = library.Shell(TITLE, dialogue=HELP, standalone=True)
@@ -136,7 +140,7 @@ def Initialise():
 		while shell.active:
 			shell.UpdateShell()
 
-			if shell.command: HandleCommand(shell.command, shell)
+			if shell.buffer: HandleCommand(shell.buffer, shell)
 	except Exception as error:
 		print(error)
 		return

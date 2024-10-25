@@ -40,11 +40,12 @@ class Shell:
 
 		self.directory = self.ResolvePath()
 		self.active   = False
-		self.command  = ""
+		self.buffer  = ""
 		self.platform = platform.system()
 
 		self.module  = None
 		self.modules = []
+		self.imported = None
 
 	def Spawn(self):
 		self.active = True
@@ -64,7 +65,7 @@ class Shell:
 
 		if self.EvaluateCommand(read):
 			return
-		self.command = read
+		self.buffer = read
 
 	def ResolvePath(self):
 		path = os.path.dirname(os.path.abspath(__file__))
@@ -83,8 +84,6 @@ class Shell:
 
 			if not self.CheckModule(module): return False
 			if not self.Mount(module): return False
-			
-			print("Module mounted.")
 		except Exception as error:
 			print(error)
 			return False
@@ -121,28 +120,20 @@ class Shell:
 		return True
 
 	def Dismount(self):
-		if self.standalone:
-			print(ERRORS['STANDALONE_SHELL_ERROR'])
-			return False
-		if not self.module:
+		if not self.standalone:
 			print(ERRORS['NO_MODULE_ERROR'])
 			return False
-
-		del sys.modules[self.module]
-		self.title = DEFAULT_TITLE
-		self.module = None
+		del sys.modules[self.imported]
 
 	def Mount(self, module):
-		if not self.CheckModule(module): return False
-
 		try:
-			imported = importlib.import_module(module)
-			imported.Initialise()
-			self.Kill()
+			if not self.CheckModule(module): return False
+
+			self.imported = importlib.import_module(module)
+			self.imported.Initialise()
 		except Exception as error:
 			print(error)
 			return False
-		return True
 
 	def Clear(self):
 		match self.platform:
