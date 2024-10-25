@@ -1,10 +1,10 @@
 #!/usr/bin/python3
+# All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
+
 import sys
 import os
 import platform
 import importlib
-
-# Code written by Tomas. All software available on my GitHub. https://www.github.com/shelbenheimer
 
 ERRORS = {
 	'MODULE_MOUNT_ERROR':      "There was an error whilst attempting to mount a module.",
