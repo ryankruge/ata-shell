@@ -12,7 +12,7 @@ HELP = """SCAN - Requires `-t` and `-i` flags to function.
 -T - Specify the target, single address or subnet in 0.0.0.0/24 format.
 -I - Specify the desired network interface to use for the scan."""
 
-BANNER = "Software written by Tomas. Available on GitHub. (https://github.com/ryankruge/ata-shell)"
+BANNER = "Software written by Tomas. Available on GitHub. (https://github.com/shelbenheimer/ata-shell)"
 VENDOR_PATH = "/Resources/manuf"
 
 TITLE = 'discovery'
