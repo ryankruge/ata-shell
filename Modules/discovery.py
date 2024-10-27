@@ -15,12 +15,6 @@ VENDOR_PATH = "/Resources/manuf.json"
 
 TITLE = 'discovery'
 
-TARGET_FLAG    = "-t"
-INTERFACE_FLAG = "-i"
-
-REQUIRED     = [ TARGET_FLAG, INTERFACE_FLAG ]
-CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
-
 class Discovery:
 	def __init__(self):
 		self.address = get_if_addr(conf.iface)
@@ -86,7 +80,7 @@ class Discovery:
 def HandleCommand(command, shell):
 	match command:
 		case 'scan':
-			Main(shell)
+			Main()
 	shell.buffer = None
 
 def Main():
@@ -134,4 +128,4 @@ def Initialise():
 		print(error)
 		return
 
-Main()
+if __name__ == "__main__": Main()

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
-from shell import *
+from shell import Shell
 
 TITLE = "ata"
 
