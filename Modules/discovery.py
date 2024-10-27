@@ -10,28 +10,28 @@ import json
 
 HELP = """SCAN - Scans the network for connected devices."""
 
-BANNER = "Software written by Tomas. Available on GitHub. (https://github.com/shelbenheimer/ata-shell)"
+BANNER      = "Software written by Tomas. Available on GitHub. (https://github.com/shelbenheimer/ata-shell)"
 VENDOR_PATH = "/Resources/manuf.json"
 
 TITLE = 'discovery'
 
-TARGET_FLAG = "-t"
+TARGET_FLAG    = "-t"
 INTERFACE_FLAG = "-i"
 
-REQUIRED = [ TARGET_FLAG, INTERFACE_FLAG ]
+REQUIRED     = [ TARGET_FLAG, INTERFACE_FLAG ]
 CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
 
 class Discovery:
 	def __init__(self):
 		self.address = get_if_addr(conf.iface)
-		self.target = self.ResolveCIDR()
+		self.target  = self.ResolveCIDR()
 
 		self.path    = f"{os.path.dirname(os.path.abspath(__file__))}{VENDOR_PATH}"
 		self.vendors = {}
 
 	def GetHosts(self):
-		packet = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
-		replies = srp(packet, timeout=2, verbose=False)[0]
+		packet  = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
+		replies = srp(packet, timeout=1, verbose=False)[0]
 
 		if not replies: return []
 
@@ -48,7 +48,8 @@ class Discovery:
 		split_addr = self.address.split('.')
 		counted = 0
 		for octet in range(0, len(split_mask)):
-			if split_mask[octet] == "0": split_addr[octet] = "0"
+			if split_mask[octet] == "0":
+				split_addr[octet] = "0"
 
 			binary = bin(int(split_mask[octet]))[2:]
 			for digit in binary:
@@ -91,8 +92,8 @@ def HandleCommand(command, shell):
 def Main():
 	try:
 		discovery = Discovery()
-		print(BANNER)
 
+		print(BANNER)
 		if not discovery.PopulateVendors():
 			print("Failed to populate manufacturer database.")
 
