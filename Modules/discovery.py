@@ -2,11 +2,11 @@
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
 from scapy.all import ARP, srp, Ether, get_if_addr, conf
+import time
 import sys
 import importlib
 import os
 import json
-import time
 
 HELP = """SCAN - Scans the network for connected devices."""
 
