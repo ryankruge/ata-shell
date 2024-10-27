@@ -6,11 +6,12 @@ import sys
 import importlib
 import os
 import requests
+import json
 
 HELP = """SCAN - Scans the network for connected devices."""
 
 BANNER = "Software written by Tomas. Available on GitHub. (https://github.com/shelbenheimer/ata-shell)"
-VENDOR_PATH = "/Resources/manuf"
+VENDOR_PATH = "/Resources/manuf.json"
 
 TITLE = 'discovery'
 
@@ -58,16 +59,12 @@ class Discovery:
 
 	def PopulateVendors(self):
 		try:
-			with open(self.path, encoding="utf8") as file:
-				temporary = {}
-				for line in file:
-					split = line.split(maxsplit=2)
-					temporary[split[0]] = split[2].rstrip()
-				return temporary
-			return
+			with open(self.path, 'r', encoding="utf8") as file:
+				self.vendors = json.load(file)
+				return True
 		except Exception as error:
 			print(error)
-			sys.exit()
+			return False
 
 	def FormatOUI(self, address):
 		formatted = address[:8].replace("-", ":")
