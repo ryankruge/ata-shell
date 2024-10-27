@@ -65,6 +65,7 @@ class Shell:
 
 	def UpdateShell(self):
 		if not self.active: return
+		
 		read = input(f"{self.title}> ")
 
 		if self.EvaluateCommand(read):
