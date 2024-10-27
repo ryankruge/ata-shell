@@ -4,7 +4,6 @@
 from scapy.all import ARP, srp, Ether, get_if_addr, conf
 import sys
 import importlib
-import re
 import os
 import requests
 
@@ -62,8 +61,8 @@ class Discovery:
 			with open(self.path, encoding="utf8") as file:
 				temporary = {}
 				for line in file:
-					split = line.split()
-					temporary[split[0]] = split[1]
+					split = line.split(maxsplit=2)
+					temporary[split[0]] = split[2].rstrip()
 				return temporary
 			return
 		except Exception as error:
