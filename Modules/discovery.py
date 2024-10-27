@@ -96,6 +96,7 @@ def Main():
 		if not discovery.PopulateVendors():
 			print("Failed to populate manufacturer database.")
 
+		print(f"Commencing scan on {discovery.target} on {time.ctime()}.")
 		start_time = time.time()
 		hosts = discovery.GetHosts()
 		if not hosts:
@@ -108,7 +109,7 @@ def Main():
 
 		elapsed = time.time() - start_time
 		formatted_elapsed = "".join(list(str(elapsed))[:5])
-		print(f"Finished scan in {formatted_elapsed}s on {time.ctime()}.")
+		print(f"Finished scan in {formatted_elapsed}s.")
 	except Exception as error:
 		print(error)
 		return
