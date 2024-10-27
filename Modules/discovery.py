@@ -92,7 +92,7 @@ def HandleCommand(command, shell):
 			Main(shell)
 	shell.buffer = None
 
-def Main(shell):
+def Main():
 	try:
 		discovery = Discovery()
 		print(BANNER)
@@ -131,4 +131,4 @@ def Initialise():
 		print(error)
 		return
 
-Initialise()
+Main()
