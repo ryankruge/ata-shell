@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
+from platform import system
 import sys
 import os
-import platform
 import importlib
 
 ERRORS = {
@@ -45,7 +45,7 @@ class Shell:
 		self.active    = False
 		self.buffer    = ""
 		self.directory = f"{os.path.dirname(os.path.abspath(__file__))}{DEFAULT_MODULES}"
-		self.platform  = platform.system()
+		self.platform  = system()
 
 		self.module   = None
 		self.modules  = []

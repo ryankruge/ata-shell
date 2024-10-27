@@ -5,8 +5,8 @@ from scapy.all import ARP, srp, Ether, get_if_addr, conf
 import sys
 import importlib
 import os
-import requests
 import json
+import time
 
 HELP = """SCAN - Scans the network for connected devices."""
 
@@ -96,6 +96,7 @@ def Main():
 		if not discovery.PopulateVendors():
 			print("Failed to populate manufacturer database.")
 
+		start_time = time.time()
 		hosts = discovery.GetHosts()
 		if not hosts:
 			print("There was an error whilst attempting to scan the network.")
@@ -104,6 +105,10 @@ def Main():
 		for host in hosts:
 			vendor = discovery.GetVendor(host[1])
 			print(f"{host[0]:<18} {host[1]:<20} {vendor:<20}")
+
+		elapsed = time.time() - start_time
+		formatted_elapsed = "".join(list(str(elapsed))[:5])
+		print(f"Finished scan in {formatted_elapsed}s on {time.ctime()}.")
 	except Exception as error:
 		print(error)
 		return
