@@ -59,12 +59,12 @@ class Shell:
 
 	def Kill(self):
 		self.active = False
-		sys.exit()
 
 	def Help(self):
 		print(f"Commands:\n{self.dialogue}")
 
 	def UpdateShell(self):
+		if not self.active: return
 		read = input(f"{self.title}> ")
 
 		if self.EvaluateCommand(read):

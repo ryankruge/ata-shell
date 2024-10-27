@@ -1,16 +1,14 @@
 #!/usr/bin/python3
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
-from scapy.all import ARP, srp, Ether
+from scapy.all import ARP, srp, Ether, get_if_addr, conf
 import sys
 import importlib
 import re
 import os
 import requests
 
-HELP = """SCAN - Requires `-t` and `-i` flags to function.
--T - Specify the target, single address or subnet in 0.0.0.0/24 format.
--I - Specify the desired network interface to use for the scan."""
+HELP = """SCAN - Scans the network for connected devices."""
 
 BANNER = "Software written by Tomas. Available on GitHub. (https://github.com/shelbenheimer/ata-shell)"
 VENDOR_PATH = "/Resources/manuf"
@@ -24,16 +22,16 @@ REQUIRED = [ TARGET_FLAG, INTERFACE_FLAG ]
 CONFIGURABLE = [ TARGET_FLAG, INTERFACE_FLAG ]
 
 class Discovery:
-	def __init__(self, target, interface):
-		self.target    = target
-		self.interface = interface
+	def __init__(self):
+		self.address = get_if_addr(conf.iface)
+		self.target = self.ResolveCIDR()
 
 		self.path    = f"{os.path.dirname(os.path.abspath(__file__))}{VENDOR_PATH}"
 		self.vendors = {}
 
 	def GetHosts(self):
 		packet = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
-		replies = srp(packet, iface=self.interface, timeout=2, verbose=False)[0]
+		replies = srp(packet, timeout=2, verbose=False)[0]
 
 		if not replies: return []
 
@@ -42,6 +40,22 @@ class Discovery:
 			information = (replies[reply][1].psrc, replies[reply][1].hwsrc)
 			hosts.append(information)
 		return hosts
+
+	def ResolveCIDR(self):
+		mask = "255.255.255.0"
+
+		split_mask = mask.split('.')
+		split_addr = self.address.split('.')
+		counted = 0
+		for octet in range(0, len(split_mask)):
+			if split_mask[octet] == "0": split_addr[octet] = "0"
+
+			binary = bin(int(split_mask[octet]))[2:]
+			for digit in binary:
+				if digit == '1': counted += 1
+
+		result = f"{".".join(split_addr)}/{counted}"
+		return result
 
 	def PopulateVendors(self):
 		try:
@@ -72,40 +86,15 @@ class Discovery:
 		except:
 			return "Unknown Vendor"
 
-def FormatArguments(string):
-	pattern = r'\"(.*?)\"|(\S+)'
-	matches = re.findall(pattern, string)
-
-	words = [quoted if quoted else non_quoted for quoted, non_quoted in matches]
-	return words
-
-def VerifyRequired(arguments, required):
-	for flag in required:
-		if flag not in arguments:
-			return False
-	return True
-
 def HandleCommand(command, shell):
-	arguments = FormatArguments(command)
-	match arguments[0]:
+	match command:
 		case 'scan':
-			Main(arguments, shell)
+			Main(shell)
 	shell.buffer = None
 
-def Main(arguments, shell):
+def Main(shell):
 	try:
-		if not VerifyRequired(arguments, REQUIRED):
-			print("Flag criteria not met.")
-			return
-
-		parameters = { TARGET_FLAG: None, INTERFACE_FLAG: None }
-		parameters = PopulateParameters(arguments, CONFIGURABLE, parameters)
-
-		discovery = Discovery(
-			parameters[TARGET_FLAG],
-			parameters[INTERFACE_FLAG]
-		)
-
+		discovery = Discovery()
 		print(BANNER)
 
 		if not discovery.PopulateVendors():
@@ -123,17 +112,6 @@ def Main(arguments, shell):
 		print(error)
 		return
 
-def PopulateParameters(arguments, flags, dictionary):
-	try:
-		temporary = dictionary
-		for argument in range(0, len(arguments)):
-			if arguments[argument] in flags:
-				dictionary[arguments[argument]] = arguments[argument + 1]
-		return temporary
-	except TypeError:
-		print("Error whilst populating parameters.")
-		return
-
 def Initialise():
 	try:
 		shell_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -146,7 +124,11 @@ def Initialise():
 		while shell.active:
 			shell.UpdateShell()
 
-			if shell.buffer: HandleCommand(shell.buffer, shell)
+			if shell.buffer:
+				HandleCommand(shell.buffer, shell)
+		shell.Kill()
 	except Exception as error:
 		print(error)
 		return
+
+Initialise()
