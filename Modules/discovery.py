@@ -20,7 +20,7 @@ class Discovery:
 		self.address = get_if_addr(conf.iface)
 		self.target  = self.ResolveCIDR()
 
-		self.path    = f"{os.path.dirname(os.path.abspath(__file__))}{VENDOR_PATH}"
+		self.path    = f'{os.path.dirname(os.path.abspath(__file__))}{VENDOR_PATH}'
 		self.vendors = {}
 
 	def GetHosts(self):
@@ -49,7 +49,7 @@ class Discovery:
 			for digit in binary:
 				if digit == '1': counted += 1
 
-		result = f"{".".join(split_addr)}/{counted}"
+		result = f'{".".join(split_addr)}/{counted}'
 		return result
 
 	def PopulateVendors(self):
@@ -91,7 +91,7 @@ def Main():
 		if not discovery.PopulateVendors():
 			print("Failed to populate manufacturer database.")
 
-		print(f"Commencing scan on {discovery.target} on {time.ctime()}.")
+		print(f'Commencing scan on {discovery.target} on {time.ctime()}.')
 		start_time = time.time()
 		hosts = discovery.GetHosts()
 		if not hosts:
@@ -100,11 +100,11 @@ def Main():
 
 		for host in hosts:
 			vendor = discovery.GetVendor(host[1])
-			print(f"{host[0]:<18} {host[1]:<20} {vendor:<20}")
+			print(f'{host[0]:<18} {host[1]:<20} {vendor:<20}')
 
 		elapsed = time.time() - start_time
 		formatted_elapsed = "".join(list(str(elapsed))[:5])
-		print(f"Finished scan in {formatted_elapsed}s.")
+		print(f'Finished scan in {formatted_elapsed}s.')
 	except Exception as error:
 		print(error)
 		return
