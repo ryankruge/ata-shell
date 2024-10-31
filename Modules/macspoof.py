@@ -1,50 +1,86 @@
 #!/usr/bin/python3
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
-import subprocess
-import platform
-import sys
+from scapy.all import conf
+from json import load
+from subprocess import run
+from platform import system
+from random import choice
 import re
+import os
 
-os = platform.system()
+class Spoof:
+	def __init__(self, vendor_path, byte_range):
+		self.vendor_path = vendor_path
+		self.byte_range = byte_range
 
-def ValidateMAC(address):
-	valid = "FF:FF:FF:FF:FF:FF"
-	pattern = r'^[0-9a-fA-F]$'
+		self.mac = None
+		self.interface = conf.iface
+		self.valid = "FF:FF:FF:FF:FF:FF"
 
-	if not len(address) == len(valid):
-		return False
+		self.platform = system()
+		self.vendors = self.PopulateVendors(self.vendor_path)
 
-	for character in range(0, len(list(valid))):
-		if valid[character] == ':': continue
+	def ValidateMAC(self, address):
+		pattern = r'^[0-9a-fA-F]$'
 
-		if not re.match(pattern, address[character]):
+		if not len(address) == len(self.valid):
 			return False
-	return True
 
-def Spoof(address, adapter):
-	match os:
-		case "Linux":
-			subprocess.run(["ip", "link", "set", adapter, "down"], text=True)
-			subprocess.run(["ip", "link", "set", adapter, "address", address], text=True)
-			subprocess.run(["ip", "link", "set", adapter, "up"], text=True)
-		case "Windows":
-			print("Support for Windows is not currently available.")
-			sys.exit()
+		for character in range(0, len(list(self.valid))):
+			if self.valid[character] == ':': continue
+
+			if not re.match(pattern, address[character]):
+				return False
+		return True
+
+	def ChangeMAC(self, address):
+		if not self.ValidateMAC(address):
+			print(f"Invalid MAC address {address}.")
+			return
+
+		run(["ip", "link", "set", f"{self.interface}", "down"], text=True)
+		run(["ip", "link", "set", f"{self.interface}", "address", f"{address}"], text=True)
+		run(["ip", "link", "set", f"{self.interface}", "up"], text=True)
+
+		print(f"Changed MAC ({address}).")
+
+	def PopulateVendors(self, path):
+		with open(path, 'r', encoding='utf8') as file:
+			return load(file)
+		print("Failed to populate vendor list.")
+		return {}
+
+	def GenRandByte(self):
+		random_byte = choice(self.byte_range)
+		return choice(random_byte)
+
+	def GenRandOUI(self):
+		if not self.vendors: return
+		return choice(list(self.vendors.keys()))
+
+	def GenRandMAC(self):
+		oui = self.GenRandOUI()
+		return "{}:{}{}:{}{}:{}{}".format(
+			oui,
+			self.GenRandByte(),
+			self.GenRandByte(),
+			self.GenRandByte(),
+			self.GenRandByte(),
+			self.GenRandByte(),
+			self.GenRandByte()
+		).upper()
+
+VENDOR_PATH = "Resources/manuf.json"
+BYTE_RANGE = [
+	[ 0, 1, 2, 3, 5, 6, 7, 8, 9 ],
+	[ 'a', 'b', 'c', 'd', 'e', 'f' ]
+]
 
 try:
-	if not os == "Linux":
-		print("This tool is only available on Linux.")
-		sys.exit()
+	path = f"{os.path.dirname(os.path.abspath(__file__))}/{VENDOR_PATH}"
 
-	address = input("enter> ")
-
-	if not ValidateMAC(address):
-		print("The MAC address provided was invalid.")
-		sys.exit()
-
-	adapter = input("adapter> ")
-
-	Spoof(address, adapter)
+	spoof = Spoof(path, BYTE_RANGE)
+	spoof.ChangeMAC(spoof.GenRandMAC())
 except KeyboardInterrupt:
 	print("Caught interruption. Exiting gracefully.")
