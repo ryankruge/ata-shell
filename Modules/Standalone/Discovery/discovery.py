@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# STANDALONE VERSION
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
 from scapy.all import ARP, srp, Ether, get_if_addr, conf

@@ -2,11 +2,11 @@
 # All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
 
 from scapy.all import ARP, srp, Ether, get_if_addr, conf
+from json import load
 import time
 import sys
 import importlib
 import os
-import json
 
 HELP = """SCAN - Scans the network for connected devices."""
 
@@ -17,17 +17,16 @@ TITLE = 'discovery'
 
 class Discovery:
 	def __init__(self):
-		self.address = get_if_addr(conf.iface)
-		self.target  = self.ResolveCIDR()
-
-		self.path    = f'{os.path.dirname(os.path.abspath(__file__))}{VENDOR_PATH}'
-		self.vendors = {}
+		self.target  = self.FormatAddress(get_if_addr(conf.iface))
+		self.path    = f'{os.path.dirname(os.path.abspath(__file__))}/{VENDOR_PATH}'
+		self.vendors = self.PopulateVendors()
 
 	def GetHosts(self):
 		packet  = Ether(dst="FF:FF:FF:FF:FF:FF") / ARP(pdst=self.target)
 		replies = srp(packet, timeout=1, verbose=False)[0]
 
-		if not replies: return []
+		if not replies:
+			return []
 
 		hosts = []
 		for reply in range(0, len(replies)):
@@ -35,11 +34,11 @@ class Discovery:
 			hosts.append(information)
 		return hosts
 
-	def ResolveCIDR(self):
+	def FormatAddress(self, ip):
 		mask = "255.255.255.0"
 
 		split_mask = mask.split('.')
-		split_addr = self.address.split('.')
+		split_addr = ip.split('.')
 		counted = 0
 		for octet in range(0, len(split_mask)):
 			if split_mask[octet] == "0":
@@ -55,11 +54,11 @@ class Discovery:
 	def PopulateVendors(self):
 		try:
 			with open(self.path, 'r', encoding="utf8") as file:
-				self.vendors = json.load(file)
-				return True
+				vendors = load(file)
+				return vendors
 		except Exception as error:
 			print(error)
-			return False
+			return {}
 
 	def FormatOUI(self, address):
 		formatted = address[:8].replace("-", ":")
@@ -67,12 +66,10 @@ class Discovery:
 
 	def GetVendor(self, address):
 		if not self.vendors:
-			self.vendors = self.PopulateVendors()
-		if not self.vendors:
 			return "Unobtainable"
 
-		formatted = self.FormatOUI(address).upper()
 		try:
+			formatted = self.FormatOUI(address).upper()
 			return self.vendors[formatted]
 		except:
 			return "Unknown Vendor"
