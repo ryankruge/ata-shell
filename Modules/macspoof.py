@@ -30,12 +30,15 @@ def Spoof(address, adapter):
 	subprocess.run(["ip", "link", "set", adapter, "address", address], text=True)
 	subprocess.run(["ip", "link", "set", adapter, "up"], text=True)
 
-address = input("enter> ")
+try:
+	address = input("enter> ")
 
-if not ValidateMAC(address):
-	print("The MAC address provided was invalid.")
-	sys.exit()
+	if not ValidateMAC(address):
+		print("The MAC address provided was invalid.")
+		sys.exit()
 
-adapter = input("adapter> ")
+	adapter = input("adapter> ")
 
-Spoof(address, adapter)
+	Spoof(address, adapter)
+except KeyboardInterrupt:
+	print("Caught interruption. Exiting gracefully.")
