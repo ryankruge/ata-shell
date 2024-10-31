@@ -23,14 +23,20 @@ def ValidateMAC(address):
 	return True
 
 def Spoof(address, adapter):
-	if not os == "Linux":
-		print("This tool is currently only available for Linux.")
-	
-	subprocess.run(["ip", "link", "set", adapter, "down"], text=True)
-	subprocess.run(["ip", "link", "set", adapter, "address", address], text=True)
-	subprocess.run(["ip", "link", "set", adapter, "up"], text=True)
+	match os:
+		case "Linux":
+			subprocess.run(["ip", "link", "set", adapter, "down"], text=True)
+			subprocess.run(["ip", "link", "set", adapter, "address", address], text=True)
+			subprocess.run(["ip", "link", "set", adapter, "up"], text=True)
+		case "Windows":
+			print("Support for Windows is not currently available.")
+			sys.exit()
 
 try:
+	if not os == "Linux":
+		print("This tool is only available on Linux.")
+		sys.exit()
+
 	address = input("enter> ")
 
 	if not ValidateMAC(address):
