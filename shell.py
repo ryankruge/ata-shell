@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
+# All software written by Tomas. (https://github.com/shelbenheimer)
 
 from platform import system
 import sys

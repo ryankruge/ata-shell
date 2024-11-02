@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# All software written by Tomas. (https://github.com/shelbenheimer/ata-shell)
+# All software written by Tomas. (https://github.com/shelbenheimer)
 
 from scapy.all import ARP, srp, Ether, get_if_addr, conf
 from json import load
